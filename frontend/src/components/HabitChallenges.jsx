@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Sword, Users, Send, CheckCircle, Trophy, Sparkles } from 'lucide-react';
+import { CATEGORY_LABELS, CHALLENGE_EXAMPLES } from '../catalog';
 
 export const HabitChallenges = ({
   currentUser,
   onlineUsers,
   onSendChallenge,
   onCompleteChallenge,
+  onCancelChallenge,
   challenges,
   feedLogs
 }) => {
@@ -13,7 +15,7 @@ export const HabitChallenges = ({
   const [challengeTitle, setChallengeTitle] = useState('');
   const [category, setCategory] = useState('STUDY');
   const [xpReward, setXpReward] = useState(50);
-  const [goldReward, setGoldReward] = useState(25);
+  const [goldReward, setGoldReward] = useState(20);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const handleCreateSubmit = (e) => {
@@ -23,7 +25,6 @@ export const HabitChallenges = ({
     onSendChallenge(selectedTargetUser, challengeTitle, category, xpReward, goldReward);
     setChallengeTitle('');
     setShowCreateModal(false);
-    alert(`⚔️ Desafio enviado com sucesso para ${selectedTargetUser}!`);
   };
 
   const classNamesPt = {
@@ -38,6 +39,11 @@ export const HabitChallenges = ({
   const myIncomingChallenges = challenges.filter(
     c => c.toUsername === currentUser?.username && c.status === 'PENDING'
   );
+  const myOutgoingChallenges = challenges.filter(
+    c => c.fromUsername === currentUser?.username && c.status === 'PENDING'
+  );
+  const purse = currentUser?.gold ?? 0;
+  const cannotAfford = goldReward > purse;
 
   return (
     <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -171,6 +177,31 @@ export const HabitChallenges = ({
       </div>
 
       <div className="glass-card">
+        <h3 className="font-rpg" style={{ color: '#f8fafc', fontSize: '1.15rem', margin: '0 0 14px' }}>
+          Ouro em jogo ({myOutgoingChallenges.length})
+        </h3>
+        {myOutgoingChallenges.length === 0 ? (
+          <p style={{ color: '#64748b', margin: 0 }}>Nenhum ouro reservado. Um desafio pendente segura o ouro até alguém concluir ou você cancelar.</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {myOutgoingChallenges.map((ch) => (
+              <div key={ch.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                <div>
+                  <strong style={{ color: '#f8fafc' }}>{ch.title}</strong>
+                  <div style={{ color: '#fbbf24', fontSize: '0.82rem' }}>
+                    Para {ch.toUsername} · {ch.goldReward} de ouro reservados
+                  </div>
+                </div>
+                <button type="button" className="btn-paymark-secondary" onClick={() => onCancelChallenge(ch.id)}>
+                  Cancelar e receber
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="glass-card">
         <h3 className="font-rpg" style={{ color: '#f8fafc', fontSize: '1.15rem', marginBottom: '14px' }}>
           📜 Feed de Desafios em Tempo Real (FastAPI WebSockets)
         </h3>
@@ -210,12 +241,43 @@ export const HabitChallenges = ({
           zIndex: 100,
           padding: '20px'
         }}>
-          <div className="glass-card" style={{ width: '100%', maxWidth: '480px', border: '1px solid rgba(255, 107, 87, 0.3)' }}>
+          <div className="glass-card" style={{ width: '100%', maxWidth: '480px', maxHeight: '90vh', overflowY: 'auto', border: '1px solid rgba(255, 107, 87, 0.3)' }}>
             <h3 className="font-rpg gradient-text" style={{ fontSize: '1.4rem', marginBottom: '16px' }}>
               ⚔️ Lançar Desafio de Hábitos
             </h3>
 
             <form onSubmit={handleCreateSubmit}>
+              <p style={{ color: '#94a3b8', fontSize: '0.84rem', marginTop: 0, lineHeight: 1.45 }}>
+                O ouro sai da sua bolsa agora e fica reservado. Quem concluir recebe. Cancelar devolve. Sua bolsa tem {purse} de ouro.
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+                {CHALLENGE_EXAMPLES.map((example) => (
+                  <button
+                    key={example.title}
+                    type="button"
+                    className="btn-paymark-secondary"
+                    onClick={() => {
+                      setChallengeTitle(example.title);
+                      setCategory(example.category);
+                      setXpReward(example.xpReward);
+                      setGoldReward(example.goldReward);
+                    }}
+                    style={{
+                      width: '100%',
+                      textAlign: 'left',
+                      justifyContent: 'flex-start',
+                      padding: '10px 12px',
+                      fontSize: '0.84rem',
+                      lineHeight: 1.4
+                    }}
+                  >
+                    <span>
+                      <strong style={{ display: 'block', color: '#f8fafc' }}>{example.title}</strong>
+                      <span style={{ color: '#94a3b8' }}>{CATEGORY_LABELS[example.category]} · {example.why}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
               <div style={{ marginBottom: '14px' }}>
                 <label style={{ display: 'block', color: '#94a3b8', fontSize: '0.85rem', marginBottom: '6px' }}>
                   Selecione o Herói Destino:
@@ -265,6 +327,29 @@ export const HabitChallenges = ({
                 />
               </div>
 
+              <div style={{ marginBottom: '14px' }}>
+                <label style={{ display: 'block', color: '#94a3b8', fontSize: '0.85rem', marginBottom: '6px' }}>
+                  Categoria
+                </label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    background: 'rgba(10, 14, 23, 0.9)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '8px',
+                    color: '#fff',
+                    outline: 'none'
+                  }}
+                >
+                  {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
                 <div>
                   <label style={{ display: 'block', color: '#94a3b8', fontSize: '0.8rem', marginBottom: '4px' }}>
@@ -272,6 +357,8 @@ export const HabitChallenges = ({
                   </label>
                   <input
                     type="number"
+                    min={1}
+                    max={100}
                     value={xpReward}
                     onChange={(e) => setXpReward(Number(e.target.value))}
                     style={{
@@ -291,6 +378,8 @@ export const HabitChallenges = ({
                   </label>
                   <input
                     type="number"
+                    min={1}
+                    max={45}
                     value={goldReward}
                     onChange={(e) => setGoldReward(Number(e.target.value))}
                     style={{
@@ -309,8 +398,8 @@ export const HabitChallenges = ({
                 <button type="button" className="btn-paymark-secondary" onClick={() => setShowCreateModal(false)}>
                   Cancelar
                 </button>
-                <button type="submit" className="btn-paymark">
-                  Enviar Desafio agora
+                <button type="submit" className="btn-paymark" disabled={cannotAfford}>
+                  {cannotAfford ? 'Ouro insuficiente' : `Enviar por ${goldReward} de ouro`}
                 </button>
               </div>
             </form>

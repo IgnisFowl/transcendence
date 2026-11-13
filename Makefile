@@ -10,7 +10,7 @@
 #                                                                              #
 # **************************************************************************** #
 
-NAME = habitquest
+NAME = side-quest
 
 DOCKER_COMPOSE = docker compose
 
@@ -19,9 +19,9 @@ DOCKER_COMPOSE = docker compose
 all: up
 
 up:
-	@echo "🚀 Subindo a infraestrutura do HabitQuest em HTTPS..."
+	@echo "🚀 Subindo a infraestrutura do Side Quest em HTTPS..."
 	$(DOCKER_COMPOSE) up -d --build
-	@echo "✅ HabitQuest rodando com sucesso!"
+	@echo "✅ Side Quest rodando com sucesso!"
 	@echo "👉 Acesse no seu navegador: https://localhost"
 
 down:

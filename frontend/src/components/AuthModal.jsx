@@ -11,16 +11,32 @@ export const AuthModal = ({
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email.trim() || !password.trim()) return;
-
-    if (mode === 'signup') {
-      if (!username.trim()) return;
-      onSuccessRegister({ email, username });
-    } else {
-      onSuccessLogin({ email, username: username || email.split('@')[0] });
+    setError('');
+    if (mode === 'signup' && !/^[A-Za-z0-9_]{3,20}$/.test(username.trim())) {
+      setError('O nome de usuário deve ter 3 a 20 caracteres (letras, números ou _).');
+      return;
+    }
+    if (password.length < 8 || password.length > 72) {
+      setError('A senha deve ter entre 8 e 72 caracteres.');
+      return;
+    }
+    if (!email.includes('@')) {
+      setError('Informe um e-mail válido.');
+      return;
+    }
+    try {
+      setLoading(true);
+      if (mode === 'signup') await onSuccessRegister({ email: email.trim(), username: username.trim(), password });
+      else await onSuccessLogin({ email: email.trim(), password });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,7 +74,7 @@ export const AuthModal = ({
             {mode === 'signup' ? <UserPlus color="#ff6b57" size={26} /> : <LogIn color="#ff6b57" size={26} />}
           </div>
           <h3 className="font-rpg gradient-text" style={{ fontSize: '1.6rem' }}>
-            {mode === 'signup' ? 'Criar Sua Conta de Herói' : 'Entrar no HabitQuest'}
+            {mode === 'signup' ? 'Criar Sua Conta de Herói' : 'Entrar no Side Quest'}
           </h3>
           <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '4px' }}>
             {mode === 'signup' ? 'Responda ao questionário de classe após se cadastrar!' : 'Bem-vindo de volta, herói!'}
@@ -137,8 +153,11 @@ export const AuthModal = ({
             </div>
           </div>
 
-          <button type="submit" className="btn-paymark" style={{ width: '100%', padding: '14px', borderRadius: '10px', justifyContent: 'center' }}>
-            {mode === 'signup' ? 'Cadastrar e Ir ao Questionário de Classe ✨' : 'Entrar na Conta'}
+          {error && (
+            <p style={{ color: '#f87171', fontSize: '0.85rem', marginBottom: '12px' }}>{error}</p>
+          )}
+          <button type="submit" className="btn-paymark" disabled={loading} style={{ width: '100%', padding: '14px', borderRadius: '10px', justifyContent: 'center' }}>
+            {loading ? 'Salvando...' : mode === 'signup' ? 'Cadastrar e Ir ao Questionário de Classe' : 'Entrar na Conta'}
           </button>
         </form>
 

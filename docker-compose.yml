@@ -3,16 +3,18 @@ services:
     image: postgres:15-alpine
     container_name: transcendence_postgres
     restart: always
+    env_file:
+      - .env
     environment:
-      POSTGRES_USER: habit_user
-      POSTGRES_PASSWORD: habit_pass_42
-      POSTGRES_DB: habitquest_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U habit_user -d habitquest_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -23,9 +25,15 @@ services:
       dockerfile: Dockerfile
     container_name: transcendence_backend
     restart: always
+    env_file:
+      - .env
     environment:
-      DATABASE_URL: postgresql://habit_user:habit_pass_42@postgres:5432/habitquest_db
+      DATABASE_URL: ${DATABASE_URL}
+      SECRET_KEY: ${SECRET_KEY}
+      UPLOAD_DIR: /app/uploads
       PORT: 5000
+    volumes:
+      - avatar_data:/app/uploads
     ports:
       - "5000:5000"
     depends_on:
@@ -58,3 +66,4 @@ services:
 
 volumes:
   postgres_data:
+  avatar_data:

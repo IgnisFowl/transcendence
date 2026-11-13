@@ -32,7 +32,7 @@ export const LegalModal = ({ onClose }) => {
         <div style={{ color: '#cbd5e1', fontSize: '0.9rem', lineHeight: '1.6' }}>
           <h4 style={{ color: '#ff6b57', margin: '14px 0 6px' }}>1. Coleta e Uso de Dados</h4>
           <p>
-            O HabitQuest armazena apenas seu nome de usuário, e-mail criptografado, classe RPG e preferências de hábitos com a finalidade exclusiva de gamificação. Seus dados nunca são vendidos ou compartilhados com terceiros.
+            O Side Quest armazena apenas seu nome de usuário, e-mail criptografado, classe RPG e preferências de hábitos com a finalidade exclusiva de gamificação. Seus dados nunca são vendidos ou compartilhados com terceiros.
           </p>
 
           <h4 style={{ color: '#ff6b57', margin: '14px 0 6px' }}>2. Direitos de Portabilidade (GDPR)</h4>
@@ -42,7 +42,7 @@ export const LegalModal = ({ onClose }) => {
 
           <h4 style={{ color: '#ff6b57', margin: '14px 0 6px' }}>3. Direito ao Esquecimento</h4>
           <p>
-            Você pode solicitar a exclusão permanente de sua conta e de todos os registros de hábitos a qualquer momento. Todos os dados associados serão removidos do banco de dados imediatamente.
+            Você pode excluir a conta na ficha do herói digitando EXCLUIR. A exclusão e a exportação dos dados geram um e-mail de confirmação, visível na ficha e enviado de verdade se SMTP_HOST estiver configurado.
           </p>
         </div>
 

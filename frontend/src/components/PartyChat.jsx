@@ -1,40 +1,47 @@
 import React, { useState } from 'react';
 import { Send, Users, Sparkles, UserPlus, UserX, MessageSquare } from 'lucide-react';
+import { Button, Modal } from '../design/system';
 
 export const PartyChat = ({
   messages,
   onlineUsers,
   onSendMessage,
-  currentUsername
+  currentUsername,
+  friends,
+  onAddFriend,
+  onRemoveFriend,
+  onOpenProfile,
+  canPlay = true,
+  canModerate = false,
+  onDeleteMessage
 }) => {
   const [inputMsg, setInputMsg] = useState('');
+  const [friendName, setFriendName] = useState('');
   const [activeSubTab, setActiveSubTab] = useState('chat');
-  const [friendsList, setFriendsList] = useState([
-    { username: 'PaladinoColega', characterClass: 'WARRIOR', level: 2, isOnline: true }
-  ]);
   const [viewingUser, setViewingUser] = useState(null);
+  const friendsList = friends || [];
 
   const handleSend = (e) => {
     e.preventDefault();
     if (!inputMsg.trim()) return;
-    onSendMessage(inputMsg);
+    onSendMessage(inputMsg.trim());
     setInputMsg('');
   };
 
   const handleAddFriend = (user) => {
     if (friendsList.some(f => f.username === user.username)) return;
-    setFriendsList(prev => [...prev, {
-      username: user.username,
-      characterClass: user.characterClass,
-      level: user.level || 1,
-      isOnline: true
-    }]);
-    alert(`🤝 ${user.username} foi adicionado à sua lista de amigos/aliados!`);
+    onAddFriend(user);
   };
 
   const handleRemoveFriend = (username) => {
-    setFriendsList(prev => prev.filter(f => f.username !== username));
-    alert(`🗑️ ${username} foi removido da sua lista de amigos.`);
+    onRemoveFriend(username);
+  };
+
+  const handleAddByName = (e) => {
+    e.preventDefault();
+    if (!friendName.trim()) return;
+    onAddFriend({ username: friendName.trim() });
+    setFriendName('');
   };
 
   const classNamesPt = {
@@ -90,8 +97,8 @@ export const PartyChat = ({
                 messages.map((msg, index) => {
                   const isMe = msg.username === currentUsername;
                   return (
-                    <div 
-                      key={index}
+                    <div
+                      key={msg.id || index}
                       style={{
                         alignSelf: isMe ? 'flex-end' : 'flex-start',
                         maxWidth: '75%',
@@ -103,7 +110,14 @@ export const PartyChat = ({
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
                         <strong style={{ color: isMe ? '#ff6b57' : '#60a5fa', fontSize: '0.85rem' }}>{msg.username}</strong>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span style={{ color: '#64748b', fontSize: '0.72rem' }}>{msg.timestamp}</span>
+                        {canModerate && (
+                          <button type="button" onClick={() => onDeleteMessage(msg.id)} style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: '0.72rem' }}>
+                            Apagar
+                          </button>
+                        )}
+                      </span>
                       </div>
                       <p style={{ color: '#f1f5f9', fontSize: '0.92rem', lineHeight: '1.5', margin: 0 }}>{msg.content}</p>
                     </div>
@@ -112,6 +126,7 @@ export const PartyChat = ({
               )}
             </div>
 
+            {canPlay ? (
             <form onSubmit={handleSend} style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
               <input
                 type="text"
@@ -132,6 +147,9 @@ export const PartyChat = ({
                 <Send size={16} />
               </button>
             </form>
+            ) : (
+              <p style={{ color: '#94a3b8', marginTop: '16px' }}>Convidados leem a Taverna e não escrevem.</p>
+            )}
           </div>
 
           <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', height: '520px' }}>
@@ -171,13 +189,13 @@ export const PartyChat = ({
                       <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
                         <button
                           className="btn-paymark-secondary"
-                          onClick={() => setViewingUser(u)}
+                          onClick={() => onOpenProfile(u.username)}
                           style={{ fontSize: '0.72rem', padding: '4px 8px', flex: 1 }}
                         >
                           Ver Perfil
                         </button>
 
-                        {isFriend ? (
+                        {canPlay && (isFriend ? (
                           <button
                             onClick={() => handleRemoveFriend(u.username)}
                             style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid #ef4444', color: '#ef4444', borderRadius: '6px', padding: '4px 8px', cursor: 'pointer' }}
@@ -193,7 +211,7 @@ export const PartyChat = ({
                           >
                             <UserPlus size={12} />
                           </button>
-                        )}
+                        ))}
                       </div>
                     )}
                   </div>
@@ -205,8 +223,26 @@ export const PartyChat = ({
       ) : (
         <div className="glass-card">
           <h3 className="font-rpg gradient-text" style={{ fontSize: '1.4rem', marginBottom: '16px' }}>
-            🤝 Sistema de Amigos / Lista de Aliados da Guilda
+            Sistema de Amigos / Lista de Aliados da Guilda
           </h3>
+          {canPlay && (
+          <form onSubmit={handleAddByName} style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+            <input
+              value={friendName}
+              onChange={(e) => setFriendName(e.target.value)}
+              placeholder="Nome de usuário do aliado"
+              style={{
+                flex: 1,
+                padding: '10px 12px',
+                borderRadius: '10px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                background: 'rgba(10, 14, 23, 0.8)',
+                color: '#fff'
+              }}
+            />
+            <button className="btn-paymark" type="submit">Adicionar</button>
+          </form>
+          )}
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
             {friendsList.length === 0 ? (
@@ -237,6 +273,7 @@ export const PartyChat = ({
                     </div>
                   </div>
 
+                  {canPlay && (
                   <button
                     className="btn-paymark-secondary"
                     onClick={() => handleRemoveFriend(friend.username)}
@@ -244,6 +281,7 @@ export const PartyChat = ({
                   >
                     Remover
                   </button>
+                  )}
                 </div>
               ))
             )}
@@ -252,52 +290,22 @@ export const PartyChat = ({
       )}
 
       {viewingUser && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.85)',
-          backdropFilter: 'blur(8px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 100,
-          padding: '20px'
-        }}>
-          <div className="glass-card" style={{ width: '100%', maxWidth: '420px', border: '1px solid rgba(255, 107, 87, 0.3)' }}>
-            <h3 className="font-rpg gradient-text" style={{ fontSize: '1.4rem', marginBottom: '14px' }}>
-              👤 Perfil do Herói: {viewingUser.username}
-            </h3>
-
-            <div style={{ background: 'rgba(10, 14, 23, 0.8)', padding: '16px', borderRadius: '12px', marginBottom: '16px' }}>
-              <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '6px' }}>
-                <strong>Classe:</strong> {classNamesPt[viewingUser.characterClass] || viewingUser.characterClass}
-              </p>
-              <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '6px' }}>
-                <strong>Nível:</strong> {viewingUser.level || 1}
-              </p>
-              <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
-                <strong>Atributos:</strong> INT {viewingUser.stats?.int || 10} | FOR {viewingUser.stats?.str || 10} | DES {viewingUser.stats?.dex || 10}
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button 
-                className="btn-paymark"
-                onClick={() => {
-                  handleAddFriend(viewingUser);
-                  setViewingUser(null);
-                }}
-                style={{ flex: 1, justifyContent: 'center', fontSize: '0.85rem' }}
-              >
-                <UserPlus size={15} /> Adicionar aos Amigos
-              </button>
-
-              <button className="btn-paymark-secondary" onClick={() => setViewingUser(null)} style={{ fontSize: '0.85rem' }}>
-                Fechar
-              </button>
-            </div>
+        <Modal title={`Perfil de ${viewingUser.username}`} onClose={() => setViewingUser(null)}>
+          <p style={{ color: '#94a3b8' }}>
+            Classe: {classNamesPt[viewingUser.characterClass] || viewingUser.characterClass} · Nível {viewingUser.level || 1}
+          </p>
+          <p style={{ color: '#94a3b8' }}>
+            INT {viewingUser.stats?.int || 10} · FOR {viewingUser.stats?.str || 10} · DES {viewingUser.stats?.dex || 10}
+          </p>
+          <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+            <Button onClick={() => { handleAddFriend(viewingUser); setViewingUser(null); }}>
+              <UserPlus size={15} /> Adicionar
+            </Button>
+            <Button variant="secondary" onClick={() => { setViewingUser(null); onOpenProfile(viewingUser.username); }}>
+              Abrir ficha
+            </Button>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

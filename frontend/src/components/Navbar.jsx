@@ -1,5 +1,6 @@
-import React from 'react';
-import { Sparkles, Scroll, Coins, User, Sword, LogOut } from 'lucide-react';
+import React, { useState } from 'react';
+import { Sparkles, Scroll, Coins, User, Sword, LogOut, Bell, Trophy, Shield } from 'lucide-react';
+import { Avatar, Badge, ProgressBar } from '../design/system';
 
 export const Navbar = ({
   user,
@@ -9,8 +10,12 @@ export const Navbar = ({
   openLegal,
   openAuthLogin,
   openAuthSignup,
-  onLogout
+  onLogout,
+  notifications = [],
+  onMarkNotificationsRead
 }) => {
+  const [showNotes, setShowNotes] = useState(false);
+  const unread = notifications.filter((item) => !item.read).length;
   const xpNeeded = user ? user.level * 100 : 100;
   const xpPercent = user ? Math.min(100, Math.round((user.xp / xpNeeded) * 100)) : 0;
 
@@ -22,6 +27,9 @@ export const Navbar = ({
     BARD: 'Bardo',
     UNASSIGNED: 'Sem Classe'
   };
+  const roleNames = { admin: 'Mestre', moderator: 'Moderador', guest: 'Convidado' };
+  const guest = user?.role === 'guest';
+  const staff = user?.role === 'admin' || user?.role === 'moderator';
 
   return (
     <header style={{
@@ -43,7 +51,7 @@ export const Navbar = ({
         gap: '16px'
       }}>
         {/* Paymark Brand / Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setActiveTab('quests')}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => setActiveTab(guest ? 'ranking' : 'quests')}>
           <div style={{
             background: 'linear-gradient(135deg, #ff6b57, #f59e0b)',
             padding: '8px',
@@ -54,25 +62,21 @@ export const Navbar = ({
           </div>
           <div>
             <h1 className="font-rpg gradient-text" style={{ fontSize: '1.4rem', margin: 0, fontWeight: 800 }}>
-              HabitQuest
+              Side Quest
             </h1>
-            <span style={{ fontSize: '0.72rem', color: '#94a3b8', letterSpacing: '0.05em' }}>
-              JS (REACT) + PYTHON (FASTAPI)
-            </span>
           </div>
         </div>
 
         {/* User RPG HUD */}
         {user ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '18px', flexWrap: 'wrap' }}>
+            <Avatar name={user.username} src={user.avatarUrl} size={36} />
             <div style={{ minWidth: '130px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: '4px' }}>
                 <span className="font-rpg" style={{ color: '#ff6b57', fontWeight: 'bold' }}>NÍV {user.level}</span>
                 <span style={{ color: '#c084fc' }}>{user.xp} / {xpNeeded} XP</span>
               </div>
-              <div className="progress-bar-container">
-                <div className="progress-xp" style={{ width: `${xpPercent}%` }} />
-              </div>
+              <ProgressBar value={xpPercent} />
             </div>
 
             <div style={{
@@ -91,7 +95,8 @@ export const Navbar = ({
               <span>{user.gold} Ouro</span>
             </div>
 
-            <span className="badge-class">{classNamesPt[user.characterClass] || user.characterClass}</span>
+            <Badge>{classNamesPt[user.characterClass] || user.characterClass}</Badge>
+            {roleNames[user.role] && <Badge>{roleNames[user.role]}</Badge>}
           </div>
         ) : null}
 
@@ -99,21 +104,35 @@ export const Navbar = ({
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           {user ? (
             <>
-              <button 
-                className={`btn-paymark ${activeTab === 'quests' ? '' : 'btn-paymark-secondary'}`}
-                onClick={() => setActiveTab('quests')}
-                style={{ fontSize: '0.85rem', padding: '8px 16px' }}
-              >
-                <Scroll size={16} /> Missões
-              </button>
-              
-              <button 
-                className={`btn-paymark ${activeTab === 'raid' || activeTab === 'challenges' ? '' : 'btn-paymark-secondary'}`}
-                onClick={() => setActiveTab('raid')}
-                style={{ fontSize: '0.85rem', padding: '8px 16px' }}
-              >
-                <Sword size={16} /> Desafios Co-op
-              </button>
+              {!guest && (
+                <button
+                  className={`btn-paymark ${activeTab === 'quests' ? '' : 'btn-paymark-secondary'}`}
+                  onClick={() => setActiveTab('quests')}
+                  style={{ fontSize: '0.85rem', padding: '8px 16px' }}
+                >
+                  <Scroll size={16} /> Missões
+                </button>
+              )}
+
+              {!guest && (
+                <button
+                  className={`btn-paymark ${activeTab === 'raid' || activeTab === 'challenges' ? '' : 'btn-paymark-secondary'}`}
+                  onClick={() => setActiveTab('raid')}
+                  style={{ fontSize: '0.85rem', padding: '8px 16px' }}
+                >
+                  <Sword size={16} /> Desafios Co-op
+                </button>
+              )}
+
+              {staff && (
+                <button
+                  className={`btn-paymark ${activeTab === 'mesa' ? '' : 'btn-paymark-secondary'}`}
+                  onClick={() => setActiveTab('mesa')}
+                  style={{ fontSize: '0.85rem', padding: '8px 16px' }}
+                >
+                  <Shield size={16} /> Mesa
+                </button>
+              )}
 
               <button 
                 className={`btn-paymark ${activeTab === 'chat' ? '' : 'btn-paymark-secondary'}`}
@@ -122,6 +141,48 @@ export const Navbar = ({
               >
                 <Sparkles size={16} /> Taverna
               </button>
+
+              <button
+                className={`btn-paymark ${activeTab === 'ranking' ? '' : 'btn-paymark-secondary'}`}
+                onClick={() => setActiveTab('ranking')}
+                style={{ fontSize: '0.85rem', padding: '8px 16px' }}
+              >
+                <Trophy size={16} /> Ranking
+              </button>
+
+              <div style={{ position: 'relative' }}>
+                <button
+                  className="btn-paymark-secondary"
+                  onClick={() => {
+                    setShowNotes((open) => !open);
+                    if (!showNotes && unread > 0) onMarkNotificationsRead();
+                  }}
+                  style={{ fontSize: '0.85rem', padding: '8px 12px' }}
+                  title="Notificações"
+                >
+                  <Bell size={16} />{unread > 0 ? ` ${unread}` : ''}
+                </button>
+                {showNotes && (
+                  <div className="glass-card" style={{
+                    position: 'absolute',
+                    right: 0,
+                    top: '46px',
+                    width: '300px',
+                    maxHeight: '320px',
+                    overflowY: 'auto',
+                    zIndex: 40,
+                    padding: '12px'
+                  }}>
+                    {notifications.length === 0 ? (
+                      <p style={{ color: '#94a3b8', margin: 0 }}>Nenhuma notificação ainda.</p>
+                    ) : notifications.map((item) => (
+                      <p key={item.id} style={{ color: '#e2e8f0', fontSize: '0.82rem', margin: '0 0 8px' }}>
+                        {item.message}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               <button 
                 className="btn-paymark-secondary"

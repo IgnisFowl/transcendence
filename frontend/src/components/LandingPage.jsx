@@ -6,16 +6,16 @@ export const LandingPage = ({ onStartSignup, onStartLogin }) => {
 
   const faqs = [
     {
-      q: "O que é o HabitQuest e como funciona o onboarding?",
-      a: "O HabitQuest é um aplicativo gamificado no estilo RPG que transforma suas metas diárias (estudo, exercícios, produtividade) em missões. Ao acessar pela primeira vez, você faz seu cadastro e responde ao Questionário Inicial para descobrir sua Classe RPG."
+      q: "O que é o Side Quest e como funciona o onboarding?",
+      a: "O Side Quest é um aplicativo gamificado no estilo RPG que transforma suas metas diárias (estudo, exercícios, produtividade) em missões. Ao acessar pela primeira vez, você faz seu cadastro e responde ao Questionário Inicial para descobrir sua Classe RPG."
     },
     {
       q: "O questionário inicial fica disponível para sempre?",
-      a: "Não! O questionário inicial é obrigatório no primeiro acesso para definir a classe do seu herói. Uma vez respondido, ele é salvo e o painel principal com missões, desafios e a Taverna é desbloqueado."
+      a: "Ele aparece no primeiro acesso: seis cenas, sem resposta certa. Se duas classes ficam perto, uma última cena desempata e você confirma a ficha. Depois disso, missões, desafios e a Taverna abrem."
     },
     {
       q: "Como funcionam os desafios em dupla e a Taverna?",
-      a: "Na Taverna e na aba de Desafios, você pode ver os status de outros heróis online (Nível, INT, FOR, DES), mandar missões personalizadas diretamente para eles e receber recompensas em tempo real via WebSockets Python FastAPI!"
+      a: "Na Taverna você conversa em tempo real e vê quem está online, com classe e nível. Nos Desafios você manda uma missão para outro herói, e quem recebe ganha XP e ouro ao concluir."
     },
     {
       q: "Quais são as 5 Classes disponíveis no jogo?",
@@ -36,7 +36,7 @@ export const LandingPage = ({ onStartSignup, onStartLogin }) => {
         </h1>
 
         <p style={{ color: '#94a3b8', fontSize: '1.15rem', maxWidth: '720px', margin: '0 auto 36px', lineHeight: '1.6' }}>
-          Responda ao questionário inicial para descobrir sua classe, ganhe XP e Ouro ao cumprir seus hábitos da vida real, e desfie seus colegas de guilda na Taverna!
+          Responda ao questionário inicial para descobrir sua classe, ganhe XP e ouro ao cumprir seus hábitos da vida real, e desafie seus colegas de guilda na Taverna!
         </p>
 
         <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -58,8 +58,8 @@ export const LandingPage = ({ onStartSignup, onStartLogin }) => {
       }}>
         <div className="glass-card" style={{ textAlign: 'center' }}>
           <Flame color="#ff6b57" size={32} style={{ marginBottom: '8px' }} />
-          <h3 className="font-rpg" style={{ fontSize: '2rem', color: '#fff' }}>+10,000</h3>
-          <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Missões Concluídas</p>
+          <h3 className="font-rpg" style={{ fontSize: '2rem', color: '#fff' }}>6 cenas</h3>
+          <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>O teste lê o que você faria</p>
         </div>
 
         <div className="glass-card" style={{ textAlign: 'center' }}>
