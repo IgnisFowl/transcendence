@@ -76,63 +76,6 @@ export const HabitManager = ({
         </div>
       </div>
 
-      {showExamples && (
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-          <div>
-            <h3 className="font-rpg" style={{ color: '#f8fafc', fontSize: '1.2rem', margin: 0 }}>
-              Exemplos para começar
-            </h3>
-            <p style={{ color: '#94a3b8', fontSize: '0.88rem', margin: '6px 0 0' }}>
-              Três por classe: uma curtinha, uma de um bloco e uma que pede mais de você. A da sua classe rende XP extra.
-            </p>
-          </div>
-          {[...(characterClass && CLASS_ORDER.includes(characterClass) ? [characterClass] : []), ...CLASS_ORDER.filter((classId) => classId !== characterClass)]
-            .map((classId) => (
-              <div key={classId}>
-                <h4 style={{ color: classId === characterClass ? '#ff6b57' : '#cbd5e1', fontSize: '0.92rem', margin: '0 0 10px' }}>
-                  {CLASS_LABELS[classId]}{classId === characterClass ? ' · sua classe' : ''}
-                </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
-                  {QUEST_EXAMPLES.filter((example) => example.classId === classId).map((example) => {
-                    const owned = habits.some((habit) => habit.title.toLowerCase() === example.title.toLowerCase());
-                    return (
-                      <div key={example.title} style={{
-                        background: 'rgba(10, 14, 23, 0.8)',
-                        border: '1px solid rgba(255,255,255,0.08)',
-                        borderRadius: '12px',
-                        padding: '14px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '8px'
-                      }}>
-                        <strong style={{ color: '#f8fafc' }}>{example.title}</strong>
-                        <span style={{ color: '#94a3b8', fontSize: '0.78rem' }}>
-                          {CATEGORY_LABELS[example.category]} · {DIFFICULTY_LABELS[example.difficulty]}
-                        </span>
-                        <p style={{ color: '#cbd5e1', fontSize: '0.84rem', margin: 0, lineHeight: 1.45 }}>{example.why}</p>
-                        <button
-                          type="button"
-                          className="btn-paymark-secondary"
-                          disabled={owned}
-                          onClick={() => onCreateHabit({
-                            title: example.title,
-                            description: example.why,
-                            category: example.category,
-                            difficulty: example.difficulty
-                          })}
-                          style={{ fontSize: '0.8rem', marginTop: 'auto' }}
-                        >
-                          {owned ? 'Já na lista' : 'Adicionar'}
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-        </div>
-      )}
-
       {/* Formulário de Criação de Hábito */}
       {showForm && (
         <form onSubmit={handleSubmit} className="glass-card" style={{ border: '1px solid rgba(255, 107, 87, 0.4)' }}>
@@ -217,6 +160,63 @@ export const HabitManager = ({
             </div>
           </div>
         </form>
+      )}
+
+      {showExamples && (
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+          <div>
+            <h3 className="font-rpg" style={{ color: '#f8fafc', fontSize: '1.2rem', margin: 0 }}>
+              Exemplos para começar
+            </h3>
+            <p style={{ color: '#94a3b8', fontSize: '0.88rem', margin: '6px 0 0' }}>
+              Três por classe: uma curtinha, uma de um bloco e uma que pede mais de você. A da sua classe rende XP extra.
+            </p>
+          </div>
+          {[...(characterClass && CLASS_ORDER.includes(characterClass) ? [characterClass] : []), ...CLASS_ORDER.filter((classId) => classId !== characterClass)]
+            .map((classId) => (
+              <div key={classId}>
+                <h4 style={{ color: classId === characterClass ? '#ff6b57' : '#cbd5e1', fontSize: '0.92rem', margin: '0 0 10px' }}>
+                  {CLASS_LABELS[classId]}{classId === characterClass ? ' · sua classe' : ''}
+                </h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
+                  {QUEST_EXAMPLES.filter((example) => example.classId === classId).map((example) => {
+                    const owned = habits.some((habit) => habit.title.toLowerCase() === example.title.toLowerCase());
+                    return (
+                      <div key={example.title} style={{
+                        background: 'rgba(10, 14, 23, 0.8)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        borderRadius: '12px',
+                        padding: '14px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px'
+                      }}>
+                        <strong style={{ color: '#f8fafc' }}>{example.title}</strong>
+                        <span style={{ color: '#94a3b8', fontSize: '0.78rem' }}>
+                          {CATEGORY_LABELS[example.category]} · {DIFFICULTY_LABELS[example.difficulty]}
+                        </span>
+                        <p style={{ color: '#cbd5e1', fontSize: '0.84rem', margin: 0, lineHeight: 1.45 }}>{example.why}</p>
+                        <button
+                          type="button"
+                          className="btn-paymark-secondary"
+                          disabled={owned}
+                          onClick={() => onCreateHabit({
+                            title: example.title,
+                            description: example.why,
+                            category: example.category,
+                            difficulty: example.difficulty
+                          })}
+                          style={{ fontSize: '0.8rem', marginTop: 'auto' }}
+                        >
+                          {owned ? 'Já na lista' : 'Adicionar'}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+        </div>
       )}
 
       {/* Lista de Hábitos */}
